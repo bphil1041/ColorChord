@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-const Toolbar = ({ setSelectedColor, selectedColor }) => {
+const Toolbar = ({ setSelectedColor, selectedColor, selectedBrushSize, setSelectedBrushSize }) => {
     const keyToColor = {
         a: 'red',
         w: 'orangered',
@@ -37,8 +37,22 @@ const Toolbar = ({ setSelectedColor, selectedColor }) => {
         cursor: 'pointer'
     });
 
+    const handleBrushSizeChange = (e) => {
+        setSelectedBrushSize(Number(e.target.value));
+    };
+
     return (
         <div style={{ position: 'fixed', top: '10px', left: '10px', zIndex: 1000 }}>
+            <div>
+                <label>Brush Size: {selectedBrushSize}px</label>
+                <input
+                    type="range"
+                    min="5"
+                    max="25"
+                    value={selectedBrushSize}
+                    onChange={handleBrushSizeChange}
+                />
+            </div>
             <button style={buttonStyle('red')} onClick={() => setSelectedColor('red')}>Red (a)</button>
             <button style={buttonStyle('orangered')} onClick={() => setSelectedColor('orangered')}>Red-Orange (w)</button>
             <button style={buttonStyle('orange')} onClick={() => setSelectedColor('orange')}>Orange (s)</button>
