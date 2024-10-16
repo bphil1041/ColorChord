@@ -1,35 +1,56 @@
 import * as Tone from 'tone';
 
-let synth; // Declare synth outside to manage it globally
+let synth; // Declare synth globally to ensure it's accessible across functions
+let currentOctave = 4; // Set the default octave to 4 (middle octave)
+
+// Add event listeners to detect when specific keys are pressed (Shift and Space)
+// Shift key increases the octave by 1, Space bar decreases it by 1
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'Shift') {
+        changeOctave(1); // Increase octave when Shift key is pressed
+    } else if (event.key === ' ') { // Detect space bar
+        changeOctave(-1); // Decrease octave when space bar is pressed
+    }
+});
+
+const changeOctave = (increment) => {
+    // Modify the current octave by the specified increment
+    // Ensure the octave stays within a valid range (1 to 6 in this case)
+    currentOctave = Math.max(1, Math.min(currentOctave + increment, 6));
+    console.log(`Octave changed to: ${currentOctave}`); // Output the current octave to the console
+};
 
 const startSoundForColor = (color) => {
+    // Initialize the synth object if it doesn't exist yet
     if (!synth) {
-        synth = new Tone.Synth().toDestination();
+        synth = new Tone.Synth().toDestination(); // Create a new synth and route its output to the speakers
     }
 
-    // Map color to a specific note or sound frequency
+    // Map color names to specific musical notes (without octave information)
     const colorToNote = {
-        red: 'C4',
-        orangered: 'C#4',
-        orange: 'D4',
-        darkorange: 'D#4',
-        yellow: 'E4',
-        yellowgreen: 'F4',
-        green: 'F#4',
-        cyan: 'G4',
-        blue: 'G#4',
-        indigo: 'A4',
-        purple: 'A#4',
-        magenta: 'B4'
+        red: 'C',        // C natural
+        orangered: 'C#', // C sharp
+        orange: 'D',     // D natural
+        darkorange: 'D#',// D sharp
+        yellow: 'E',     // E natural
+        yellowgreen: 'F',// F natural
+        green: 'F#',     // F sharp
+        cyan: 'G',       // G natural
+        blue: 'G#',      // G sharp
+        indigo: 'A',     // A natural
+        purple: 'A#',    // A sharp
+        magenta: 'B'     // B natural
     };
 
-    const note = colorToNote[color] || 'C4'; // Default to C4 if color isn't mapped
-    synth.triggerAttack(note); // Start sound without releasing
+    const baseNote = colorToNote[color] || 'C'; // Default to 'C' if the color isn't mapped
+    const noteWithOctave = `${baseNote}${currentOctave}`; // Combine the note and current octave
+    synth.triggerAttack(noteWithOctave); // Start playing the note
 };
 
 const stopSound = () => {
+    // Release (stop) the sound if the synth exists
     if (synth) {
-        synth.triggerRelease(); // Stop the sound
+        synth.triggerRelease(); // Stop playing the note
     }
 };
 
