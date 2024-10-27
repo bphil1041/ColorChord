@@ -1,28 +1,39 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Line } from 'react-konva';
-import { startSoundForColor, stopSound, modulatePitch } from './SoundManager'; // Import updated functions
+import { startSoundForColor, stopSound, modulatePitch } from './SoundManager';
 
 const DrawingCanvas = ({ selectedColor, selectedBrushSize, onStrokeEnd }) => {
     const [lines, setLines] = useState([]);
     const isDrawing = useRef(false);
-    const startPoint = useRef({ x: 0, y: 0 }); // To track the starting point of the drawing
-    const currentColor = useRef(selectedColor); // Track the current color for pitch modulation
+    const startPoint = useRef({ x: 0, y: 0 });
+    const isNewSegment = useRef(false);
 
-    // This hook listens for changes in the selected color
+    // Track color changes to start a new line segment with a new color
     useEffect(() => {
-        currentColor.current = selectedColor; // Update the reference to the new color
-    }, [selectedColor]); // Triggered whenever selectedColor changes
+        if (isDrawing.current) {
+            endCurrentSegment();
+            startNewSegment();
+        }
+    }, [selectedColor]);
+
+    const startNewSegment = () => {
+        isNewSegment.current = true;
+        // Create a new line segment with the selected color, without any initial points
+        const newLine = { points: [], color: selectedColor, strokeWidth: selectedBrushSize };
+        setLines((prevLines) => [...prevLines, newLine]);
+        startSoundForColor(selectedColor); // Start sound for the new segment
+    };
+
+    const endCurrentSegment = () => {
+        stopSound(); // Stop sound for the current segment
+    };
 
     const handleMouseDown = (e) => {
         isDrawing.current = true;
         const stage = e.target.getStage();
         const point = stage.getPointerPosition();
-        startPoint.current = point; // Store the starting point
-
-        // Start a new line with the selected color and brush size
-        const newLine = { points: [], color: selectedColor, strokeWidth: selectedBrushSize };
-        setLines((prevLines) => [...prevLines, newLine]);
-        startSoundForColor(selectedColor); // Start sound when mouse is pressed
+        startPoint.current = point;
+        startNewSegment();
     };
 
     const handleMouseMove = (e) => {
@@ -30,28 +41,23 @@ const DrawingCanvas = ({ selectedColor, selectedBrushSize, onStrokeEnd }) => {
 
         const stage = e.target.getStage();
         const point = stage.getPointerPosition();
-        let lastLine = lines[lines.length - 1];
 
-        // Update the current color if it has changed
-        if (currentColor.current !== lastLine.color) {
-            lastLine.color = currentColor.current; // Update the color of the current line
-            startSoundForColor(currentColor.current); // Update sound to the new color
-        }
-
-        // Add new points to the current line
+        // Add points only when the mouse moves, avoiding the initial extra point
+        const lastLineIndex = lines.length - 1;
+        const lastLine = lines[lastLineIndex];
         lastLine.points = lastLine.points.concat([point.x, point.y]);
 
-        // Calculate the y-axis distance moved from the starting point
-        const yDistance = point.y - startPoint.current.y; // Only use the y-axis distance
-        modulatePitch(yDistance); // Modulate pitch based on the y-axis distance
+        // Modulate pitch based on y-axis movement
+        const yDistance = point.y - startPoint.current.y;
+        modulatePitch(yDistance);
 
         setLines(lines.concat());
     };
 
     const handleMouseUp = () => {
         isDrawing.current = false;
-        onStrokeEnd(); // Callback for when stroke ends
-        stopSound(); // Stop the sound when mouse is released
+        endCurrentSegment();
+        onStrokeEnd();
     };
 
     return (
@@ -67,8 +73,8 @@ const DrawingCanvas = ({ selectedColor, selectedBrushSize, onStrokeEnd }) => {
                     <Line
                         key={index}
                         points={line.points}
-                        stroke={line.color} // Use the color of each line
-                        strokeWidth={line.strokeWidth} // Use brush size for stroke width
+                        stroke={line.color}
+                        strokeWidth={line.strokeWidth}
                         tension={0.5}
                         lineCap="round"
                         lineJoin="round"
