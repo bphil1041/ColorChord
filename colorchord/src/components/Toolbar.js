@@ -49,7 +49,7 @@ const Toolbar = ({ setSelectedColor, selectedColor, selectedBrushSize, setSelect
                     <input
                         type="range"
                         min="1"
-                        max="250"
+                        max="500"
                         value={selectedBrushSize}
                         onChange={handleBrushSizeChange}
                     />
