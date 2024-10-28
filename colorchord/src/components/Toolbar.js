@@ -1,6 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import './Toolbar.css';
 
 const Toolbar = ({ setSelectedColor, selectedColor, selectedBrushSize, setSelectedBrushSize }) => {
+    const [isVisible, setIsVisible] = useState(true);
+    const [isFadingOut, setIsFadingOut] = useState(false);
+    const [isFadingIn, setIsFadingIn] = useState(false);
     const keyToColor = {
         a: 'red',
         w: 'orangered',
@@ -18,33 +22,59 @@ const Toolbar = ({ setSelectedColor, selectedColor, selectedBrushSize, setSelect
 
     useEffect(() => {
         const handleKeyDown = (e) => {
+            // Prevent the default Tab behavior to avoid shifting focus
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                if (isVisible) {
+                    setIsFadingOut(true);
+                    setTimeout(() => {
+                        setIsVisible(false);
+                        setIsFadingOut(false);
+                    }, 300); // Match this duration with the CSS transition duration
+                } else {
+                    setIsVisible(true);
+                    setIsFadingIn(true);
+                    setTimeout(() => {
+                        setIsFadingIn(false);
+                    }, 300); // Match this duration with the CSS transition duration
+                }
+            }
+
             const color = keyToColor[e.key.toLowerCase()];
             if (color) {
                 setSelectedColor(color);
             }
         };
+        
         window.addEventListener('keydown', handleKeyDown);
-
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [setSelectedColor]);
-
-    const buttonStyle = (color) => ({
-        backgroundColor: selectedColor === color ? 'lightgray' : 'white',
-        padding: '10px',
-        margin: '5px',
-        cursor: 'pointer'
-    });
+    }, [setSelectedColor, isVisible]);
 
     const handleBrushSizeChange = (e) => {
         setSelectedBrushSize(Number(e.target.value));
     };
 
     return (
-        <div style={{ position: 'fixed', top: '10px', left: '10px', zIndex: 1000 }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ marginRight: '20px' }}>
+        <div
+            className={`toolbar-container ${isFadingOut ? 'fade-out' : ''} ${isFadingIn ? 'fade-in' : ''}`}
+            style={{ display: isVisible ? 'flex' : 'none' }}
+        >
+            <div className="color-buttons">
+                {Object.entries(keyToColor).map(([key, color]) => (
+                    <button
+                        key={color}
+                        className={`color-button ${selectedColor === color ? 'selected' : ''}`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => setSelectedColor(color)}
+                    >
+                        {color.charAt(0).toUpperCase() + color.slice(1)} ({key})
+                    </button>
+                ))}
+            </div>
+            <div className="toolbar-header">
+                <div className="brush-size-container">
                     <label>Brush Size: {selectedBrushSize}px</label>
                     <input
                         type="range"
@@ -54,22 +84,7 @@ const Toolbar = ({ setSelectedColor, selectedColor, selectedBrushSize, setSelect
                         onChange={handleBrushSizeChange}
                     />
                 </div>
-                <p style={{ marginRight: '20px' }}>Shift: Octave Up</p>
-                <p>Space Bar: Octave Down</p>
-            </div>
-            <div>
-                <button style={buttonStyle('red')} onClick={() => setSelectedColor('red')}>Red (a)</button>
-                <button style={buttonStyle('orangered')} onClick={() => setSelectedColor('orangered')}>Red-Orange (w)</button>
-                <button style={buttonStyle('orange')} onClick={() => setSelectedColor('orange')}>Orange (s)</button>
-                <button style={buttonStyle('darkorange')} onClick={() => setSelectedColor('darkorange')}>Yellow-Orange (e)</button>
-                <button style={buttonStyle('yellow')} onClick={() => setSelectedColor('yellow')}>Yellow (d)</button>
-                <button style={buttonStyle('yellowgreen')} onClick={() => setSelectedColor('yellowgreen')}>Yellow-Green (r)</button>
-                <button style={buttonStyle('green')} onClick={() => setSelectedColor('green')}>Green (f)</button>
-                <button style={buttonStyle('cyan')} onClick={() => setSelectedColor('cyan')}>Blue-Green (t)</button>
-                <button style={buttonStyle('blue')} onClick={() => setSelectedColor('blue')}>Blue (g)</button>
-                <button style={buttonStyle('indigo')} onClick={() => setSelectedColor('indigo')}>Blue-Violet (y)</button>
-                <button style={buttonStyle('purple')} onClick={() => setSelectedColor('purple')}>Violet (h)</button>
-                <button style={buttonStyle('magenta')} onClick={() => setSelectedColor('magenta')}>Red-Violet (u)</button>
+                <p className="keyboard-shortcuts"><strong>Shift:</strong> Octave Up | <strong>Space Bar:</strong> Octave Down | <strong>Tab:</strong> Hide / Show Toolbar</p>
             </div>
         </div>
     );
