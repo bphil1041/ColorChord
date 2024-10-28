@@ -1,0 +1,109 @@
+/* Apply Tiny5 font to specific text elements */
+.tiny5-regular {
+    font-family: "Tiny5", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Container for the entire toolbar */
+.toolbar-container {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 8px;
+    border-width: 7.5px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: "Roboto Slab", Arial, sans-serif;
+    resize: both; /* Allow resizing from corners */
+    overflow: auto; /* Enables scrolling if content overflows */
+    display: flex;
+    flex-direction: column; /* Stacks content vertically */
+    gap: 10px; /* Adds space between elements */
+    min-width: 200px; /* Minimum width to prevent collapse */
+    min-height: 150px; /* Minimum height for usability */
+    transition: opacity 0.3s ease; /* Transition for fading */
+    opacity: 1; /* Initially fully visible */
+}
+
+/* Flexbox layout for the main toolbar header area */
+.toolbar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+/* Brush size label and range input */
+.brush-size-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+    font-family: "Roboto Slab", sans-serif;
+}
+
+/* Styles for brush label */
+.brush-size-container label {
+    font-weight: bold;
+}
+
+/* Brush size input styling */
+.brush-size-container input[type="range"] {
+    width: 100%; /* Takes full width of container */
+}
+
+/* Keyboard shortcuts text styling */
+.keyboard-shortcuts {
+    font-size: 12px;
+    color: #555;
+    font-family: "Roboto Slab", sans-serif;
+}
+
+/* Color buttons container with flex layout */
+.color-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+    width: 100%; /* Adjusts to container width */
+}
+
+/* General style for each color button */
+.color-button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 12px;
+    text-align: center;
+    flex: 1 1 calc(33.33% - 10px); /* 3 buttons per row with gap */
+    font-family: "Roboto Slab", sans-serif;
+}
+
+/* Highlight selected color */
+.color-button.selected {
+    border-color: rgb(158, 158, 158);
+    border-width: 7.5px;
+}
+
+/* Button hover effect */
+.color-button:hover {
+    background-color: #f0f0f0;
+}
+
+/* Fade-out effect */
+.fade-out {
+    opacity: 0; /* Fade out */
+}
+
+/* Fade-in effect */
+.fade-in {
+    opacity: 1; /* Ensure it's fully visible */
+}
