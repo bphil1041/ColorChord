@@ -7,9 +7,12 @@ const Toolbar = ({
   selectedBrushSize,
   setSelectedBrushSize,
 }) => {
+  // State to control the visibility of the toolbar
   const [isVisible, setIsVisible] = useState(true);
+  // State to control the fading animation states
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isFadingIn, setIsFadingIn] = useState(false);
+  // Mapping between keys and colors
   const keyToColor = {
     a: "red",
     w: "orangered",
@@ -25,6 +28,7 @@ const Toolbar = ({
     u: "magenta",
   };
 
+  // Mapping between colors and musical pitches
   const colorToPitch = {
     red: "C",
     orangered: "C#",
@@ -40,10 +44,13 @@ const Toolbar = ({
     magenta: "B",
   };
 
+  // Handle keydown events to control toolbar visibility and color selection
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Tab") {
         e.preventDefault();
+
+        // Toggle toolbar visibility
         if (isVisible) {
           setIsFadingOut(true);
           setTimeout(() => {
@@ -59,6 +66,7 @@ const Toolbar = ({
         }
       }
 
+      // Set the selected color based on the pressed key
       const color = keyToColor[e.key.toLowerCase()];
       if (color) {
         setSelectedColor(color);
@@ -66,11 +74,12 @@ const Toolbar = ({
     };
 
     window.addEventListener("keydown", handleKeyDown);
+    // Cleanup function to remove event listener on unmount
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [setSelectedColor, isVisible]);
-
+  // Handle brush size change from the input element
   const handleBrushSizeChange = (e) => {
     setSelectedBrushSize(Number(e.target.value));
   };
